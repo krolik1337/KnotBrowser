@@ -30,6 +30,7 @@
 #include <AntTweakBar.h>
 float gRotation[3] = { 0.f,1.f,0.f };
 int gAutoRotate = 1;
+float rotationSpeed = 0.1;
 
 /* the global Assimp scene object */
 const struct aiScene* scene = NULL;
@@ -37,7 +38,6 @@ GLuint scene_list = 0;
 struct aiVector3D scene_min, scene_max, scene_center;
 
 /* current rotation angle */
-static float angle = 0.f;
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
@@ -253,7 +253,7 @@ void do_motion(void)
 	static int frames = 60;
 
 	int time = glutGet(GLUT_ELAPSED_TIME);
-	if (gAutoRotate) angle += (time - prev_time)*0.01;
+	if (gAutoRotate) angle += (time - prev_time)*rotationSpeed;
 	prev_time = time;
 
 	frames += 1;
@@ -372,10 +372,15 @@ int main(int argc, char **argv)
 	// ATB identifier for the array
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 3);
 
-	// Link it to the tweak bar
+	// TweakBar Menu
 	TwAddVarRW(bar, "Mesh", MeshTwType, &m_currentMesh, NULL);
-	TwAddVarRW(bar, "ObjRotation", TW_TYPE_QUAT4F, &gRotation, " axisz=-z ");
+	TwAddSeparator(bar, "", NULL);
+	TwAddVarRW(bar, "Rotation", TW_TYPE_QUAT4F, &gRotation, " axisz=-z ");
+	TwAddSeparator(bar, "", NULL);
+	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0.1 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
+	TwAddSeparator(bar, "", NULL);
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' ");
+
 
 	// after GLUT initialization
 	// directly redirect GLUT events to AntTweakBar
