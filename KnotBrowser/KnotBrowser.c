@@ -357,7 +357,7 @@ int main(int argc, char **argv)
 	// 		return -1;
 	// 	}
 	// }
-	loadasset("knot1.obj");
+	loadasset("D:\\Git\\KnotBrowser\\Debug\\knot1.obj");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
