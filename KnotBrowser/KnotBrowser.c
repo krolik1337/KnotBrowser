@@ -38,6 +38,7 @@ GLuint scene_list = 0;
 struct aiVector3D scene_min, scene_max, scene_center;
 
 /* current rotation angle */
+static float angle = 0.f;
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
