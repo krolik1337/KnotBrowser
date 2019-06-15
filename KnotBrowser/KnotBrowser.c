@@ -26,6 +26,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+/* AntTweakBar include files*/
+#include <AntTweakBar.h>
+
 /* the global Assimp scene object */
 const struct aiScene* scene = NULL;
 GLuint scene_list = 0;
@@ -47,6 +50,7 @@ void reshape(int width, int height)
 	gluPerspective(fieldOfView, aspectRatio,
 		1.0, 1000.0);  /* Znear and Zfar */
 	glViewport(0, 0, width, height);
+	TwWindowSize(width, height);
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -244,7 +248,7 @@ void do_motion(void)
 {
 	static GLint prev_time = 0;
 	static GLint prev_fps_time = 0;
-	static int frames = 0;
+	static int frames = 60;
 
 	int time = glutGet(GLUT_ELAPSED_TIME);
 	angle += (time - prev_time)*0.01;
@@ -301,6 +305,8 @@ void display(void)
 
 	glCallList(scene_list);
 
+	TwDraw();
+
 	glutSwapBuffers();
 
 	do_motion();
@@ -323,17 +329,30 @@ int loadasset(const char* path)
 	return 1;
 }
 
+// Function called at exit
+void Terminate(void)
+{
+	TwTerminate();
+}
+
 /* ---------------------------------------------------------------------------- */
 int main(int argc, char **argv)
 {
+	TwBar *bar; // Pointer to the tweak bar
 	struct aiLogStream stream;
 
 	glutInitWindowSize(900, 600);
 	glutInitWindowPosition(100, 100);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInit(&argc, argv);
-
 	glutCreateWindow("Assimp - Very simple OpenGL sample");
+
+	atexit(Terminate);  // Called after glutMainLoop ends
+
+	// Initialize AntTweakBar
+	TwInit(TW_OPENGL, NULL);
+	bar = TwNewBar("Knot Browser");
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 
