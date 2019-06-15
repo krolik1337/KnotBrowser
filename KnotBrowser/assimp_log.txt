@@ -1,2 +1,0 @@
-Info,  T6200: Load knot1.obj
-Error, T6200: Unable to open file "knot1.obj".
