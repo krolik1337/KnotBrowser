@@ -28,6 +28,8 @@
 
 /* AntTweakBar include files*/
 #include <AntTweakBar.h>
+float gRotation[3] = { 0.f,1.f,0.f };
+int gAutoRotate = 1;
 
 /* the global Assimp scene object */
 const struct aiScene* scene = NULL;
@@ -251,7 +253,7 @@ void do_motion(void)
 	static int frames = 60;
 
 	int time = glutGet(GLUT_ELAPSED_TIME);
-	angle += (time - prev_time)*0.01;
+	if (gAutoRotate) angle += (time - prev_time)*0.01;
 	prev_time = time;
 
 	frames += 1;
@@ -279,7 +281,7 @@ void display(void)
 	gluLookAt(0.f, 0.f, 3.f, 0.f, 0.f, -5.f, 0.f, 1.f, 0.f);
 
 	/* rotate it around the y axis */
-	glRotatef(angle, 0.f, 1.f, 0.f);
+	glRotatef(angle, gRotation[0],gRotation[1],gRotation[2]);
 
 	/* scale the whole asset to fit into our view frustum */
 	tmp = scene_max.x - scene_min.x;
@@ -335,10 +337,17 @@ void Terminate(void)
 	TwTerminate();
 }
 
+void TW_CALL AutoRotateCB(void *p)
+{
+	gAutoRotate = !gAutoRotate;
+}
+
 /* ---------------------------------------------------------------------------- */
 int main(int argc, char **argv)
 {
 	TwBar *bar; // Pointer to the tweak bar
+	// Create an internal enum to name the meshes
+	typedef enum { BUDDHA, BUNNY, DRAGON } MESH_TYPE;
 	
 	struct aiLogStream stream;
 
@@ -353,6 +362,21 @@ int main(int argc, char **argv)
 	// Initialize AntTweakBar
 	TwInit(TW_OPENGL, NULL);
 	bar = TwNewBar("Knot Browser");
+
+	// A variable for the current selection - will be updated by ATB
+	MESH_TYPE m_currentMesh = BUDDHA;
+
+	// Array of drop down items
+	TwEnumVal Meshes[] = { {BUDDHA, "Buddha"}, {BUNNY, "Bunny"}, {DRAGON, "Dragon"} };
+
+	// ATB identifier for the array
+	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 3);
+
+	// Link it to the tweak bar
+	TwAddVarRW(bar, "Mesh", MeshTwType, &m_currentMesh, NULL);
+	TwAddVarRW(bar, "ObjRotation", TW_TYPE_QUAT4F, &gRotation, " axisz=-z ");
+	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' ");
+
 	// after GLUT initialization
 	// directly redirect GLUT events to AntTweakBar
 	glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
@@ -387,7 +411,7 @@ int main(int argc, char **argv)
 	  // 		return -1;
 	  // 	}
 	  // }
-	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\\Knots\\knot1.obj");
+	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
