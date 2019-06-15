@@ -339,19 +339,30 @@ void Terminate(void)
 int main(int argc, char **argv)
 {
 	TwBar *bar; // Pointer to the tweak bar
+	
 	struct aiLogStream stream;
 
 	glutInitWindowSize(900, 600);
 	glutInitWindowPosition(100, 100);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInit(&argc, argv);
-	glutCreateWindow("Assimp - Very simple OpenGL sample");
+	glutCreateWindow("Knot Browser - Check your knot!");
 
 	atexit(Terminate);  // Called after glutMainLoop ends
 
 	// Initialize AntTweakBar
 	TwInit(TW_OPENGL, NULL);
 	bar = TwNewBar("Knot Browser");
+	// after GLUT initialization
+	// directly redirect GLUT events to AntTweakBar
+	glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
+	glutMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT);
+	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT); // same as MouseMotion
+	glutKeyboardFunc((GLUTkeyboardfun)TwEventKeyboardGLUT);
+	glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
+
+	// send the ''glutGetModifers'' function pointer to AntTweakBar
+	TwGLUTModifiersFunc(glutGetModifiers);
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
