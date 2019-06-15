@@ -352,12 +352,12 @@ int main(int argc, char **argv)
 	  is specified, we try to locate one of the more expressive test
 	  models from the repository (/models-nonbsd may be missing in
 	  some distributions so we need a fallback from /models!). */
-	// if (0 != loadasset(argc >= 2 ? argv[1] : "../../test/models-nonbsd/X/dwarf.x")) {
-	// 	if (argc != 1 || (0 != loadasset("../../../../test/models-nonbsd/X/dwarf.x") && 0 != loadasset("../../test/models/X/Testwuson.X"))) {
-	// 		return -1;
-	// 	}
-	// }
-	loadasset("D:\\Git\\KnotBrowser\\Debug\\knot1.obj");
+	  // if (0 != loadasset(argc >= 2 ? argv[1] : "../../test/models-nonbsd/X/dwarf.x")) {
+	  // 	if (argc != 1 || (0 != loadasset("../../../../test/models-nonbsd/X/dwarf.x") && 0 != loadasset("../../test/models/X/Testwuson.X"))) {
+	  // 		return -1;
+	  // 	}
+	  // }
+	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\\Knots\\knot1.obj");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
