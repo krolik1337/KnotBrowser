@@ -264,7 +264,7 @@ void do_motion(void)
 	static int frames = 0;
 
 	int time = glutGet(GLUT_ELAPSED_TIME);
-	if (gAutoRotate) angle += (time - prev_time)*rotationSpeed;
+	angle += (time - prev_time)*rotationSpeed;
 	prev_time = time;
 
 	frames += 1;
@@ -275,8 +275,6 @@ void do_motion(void)
 		frames = 0;
 		prev_fps_time = time;
 	}
-
-
 	glutPostRedisplay();
 }
 
@@ -366,6 +364,8 @@ void Terminate(void)
 
 void TW_CALL AutoRotateCB(void *p)
 {
+	if (gAutoRotate) rotationSpeed = 0.f;
+	else rotationSpeed = 0.1f;
 	gAutoRotate = !gAutoRotate;
 }
 
