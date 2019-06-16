@@ -410,23 +410,13 @@ int main(int argc, char **argv)
 	TwAddSeparator(bar, "", NULL);
 	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
 	TwAddSeparator(bar, "", NULL);
-<<<<<<< HEAD
-	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
-=======
+
 	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed, " min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
->>>>>>> 9d6ade4cf25771c6178087c83fa6afd4d9fe73da
 	TwAddSeparator(bar, "", NULL);
-<<<<<<< HEAD
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
 	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier," label='Light booster' min=0.1 max=4 step=0.02 ");
 	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection," label='Light direction'");
 	TwAddVarRW(bar, "BgColor", TW_TYPE_COLOR3F, &bgColor,"label='Background color'");
-
-=======
-	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' ");
-	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier, " label='Light booster' min=0.1 max=4 step=0.02 ");
-	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection, " label='Light direction'");
->>>>>>> krolik1337-develop
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
 
 	// Add 'win->MatDiffuse' to 'bar': this is a variable of type TW_TYPE_COLOR3F (3 floats color, alpha is ignored)
