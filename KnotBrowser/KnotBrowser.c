@@ -28,10 +28,15 @@
 
 /* AntTweakBar include files*/
 #include <AntTweakBar.h>
+
+/*Rotation*/
 float gRotation[3] = { 0.f,1.f,0.f };
 int gAutoRotate = 1;
 float rotationSpeed = 0.1;
 float zoom;
+
+/*Background Color*/
+float bgColor[3] = { 0.2f,0.3f,0.5f };
 
 /* the global Assimp scene object */
 const struct aiScene* scene = NULL;
@@ -306,6 +311,8 @@ void display(void)
 	v[0] = -lightDirection[0]; v[1] = -lightDirection[1]; v[2] = -lightDirection[2]; v[3] = 0.0f;
 	glLightfv(GL_LIGHT0, GL_POSITION, v);
 
+	/*Sets background color*/
+	glClearColor(bgColor[0],bgColor[1],bgColor[2], 0.f);
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, matAmbient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
@@ -407,11 +414,10 @@ int main(int argc, char **argv)
 	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
 	TwAddSeparator(bar, "", NULL);
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
-	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier,
-		" label='Light booster' min=0.1 max=4 step=0.02 ");
+	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier," label='Light booster' min=0.1 max=4 step=0.02 ");
+	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection," label='Light direction'");
+	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &bgColor,"label='Background color'");
 
-	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection,
-		" label='Light direction'");
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
 
 	// Add 'win->MatDiffuse' to 'bar': this is a variable of type TW_TYPE_COLOR3F (3 floats color, alpha is ignored)
@@ -452,9 +458,7 @@ int main(int argc, char **argv)
 	  // 		return -1;
 	  // 	}
 	  // }
-	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot2.obj");
-
-	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj");
 
 	glEnable(GL_DEPTH_TEST);
 
