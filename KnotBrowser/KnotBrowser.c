@@ -39,6 +39,8 @@ struct aiVector3D scene_min, scene_max, scene_center;
 
 /* current rotation angle */
 static float angle = 0.f;
+float lightMultiplier;
+float lightDirection[3];
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
@@ -274,6 +276,7 @@ void do_motion(void)
 void display(void)
 {
 	float tmp;
+	float v[4];
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -290,6 +293,15 @@ void display(void)
 	tmp = aisgl_max(scene_max.z - scene_min.z, tmp);
 	tmp = 1.f / tmp;
 	glScalef(tmp, tmp, tmp);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	v[0] = v[1] = v[2] = lightMultiplier*0.4f; v[3] = 1.0f;
+	glLightfv(GL_LIGHT0, GL_AMBIENT, v);
+	v[0] = v[1] = v[2] = lightMultiplier*0.8f; v[3] = 1.0f;
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, v);
+	v[0] = -lightDirection[0]; v[1] = -lightDirection[1]; v[2] = -lightDirection[2]; v[3] = 0.0f;
+	glLightfv(GL_LIGHT0, GL_POSITION, v);
 
 	/* center the model */
 	glTranslatef(-scene_center.x, -scene_center.y, -scene_center.z);
@@ -360,6 +372,8 @@ int main(int argc, char **argv)
 
 	atexit(Terminate);  // Called after glutMainLoop ends
 
+	lightMultiplier = 1;
+	lightDirection[0] = lightDirection[1] = lightDirection[2] = -0.57735f;
 	// Initialize AntTweakBar
 	TwInit(TW_OPENGL, NULL);
 	bar = TwNewBar("Knot Browser");
@@ -380,7 +394,12 @@ int main(int argc, char **argv)
 	TwAddSeparator(bar, "", NULL);
 	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0.1 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
 	TwAddSeparator(bar, "", NULL);
-	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' ");
+	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
+	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier,
+		" label='Light booster' min=0.1 max=4 step=0.02 keyIncr='+' keyDecr='-' help='Increase/decrease the light power.' ");
+
+	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection,
+		" label='Light direction' open help='Change the light direction.' ");
 
 
 	// after GLUT initialization
@@ -417,7 +436,7 @@ int main(int argc, char **argv)
 	  // 		return -1;
 	  // 	}
 	  // }
-	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj");
+	loadasset("C:\\Users\\kk\\Documents\\GitHub\\KnotBrowser\\KnotBrowser\\knot2.obj");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
