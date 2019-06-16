@@ -416,7 +416,7 @@ int main(int argc, char **argv)
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
 	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier," label='Light booster' min=0.1 max=4 step=0.02 ");
 	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection," label='Light direction'");
-	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &bgColor,"label='Background color'");
+	TwAddVarRW(bar, "BgColor", TW_TYPE_COLOR3F, &bgColor,"label='Background color'");
 
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
 
