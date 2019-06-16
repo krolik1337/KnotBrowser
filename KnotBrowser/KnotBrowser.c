@@ -456,9 +456,6 @@ int main(int argc, char **argv)
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);    /* Uses default lighting parameters */
-
 	glEnable(GL_DEPTH_TEST);
 
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
