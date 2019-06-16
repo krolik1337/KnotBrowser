@@ -38,7 +38,7 @@ GLuint scene_list = 0;
 struct aiVector3D scene_min, scene_max, scene_center;
 
 /* current rotation angle */
-static float angle = 0.f;
+static float angle = 45.f;
 float lightMultiplier;
 float lightDirection[3];
 
@@ -253,7 +253,7 @@ void do_motion(void)
 {
 	static GLint prev_time = 0;
 	static GLint prev_fps_time = 0;
-	static int frames = 60;
+	static int frames = 0;
 
 	int time = glutGet(GLUT_ELAPSED_TIME);
 	if (gAutoRotate) angle += (time - prev_time)*rotationSpeed;
@@ -390,9 +390,9 @@ int main(int argc, char **argv)
 	// TweakBar Menu
 	TwAddVarRW(bar, "Mesh", MeshTwType, &m_currentMesh, NULL);
 	TwAddSeparator(bar, "", NULL);
-	TwAddVarRW(bar, "Rotation", TW_TYPE_QUAT4F, &gRotation, " axisz=-z ");
+	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
 	TwAddSeparator(bar, "", NULL);
-	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0.1 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
+	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
 	TwAddSeparator(bar, "", NULL);
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
 	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier,
@@ -436,7 +436,7 @@ int main(int argc, char **argv)
 	  // 		return -1;
 	  // 	}
 	  // }
-	loadasset("C:\\Users\\kk\\Documents\\GitHub\\KnotBrowser\\KnotBrowser\\knot2.obj");
+	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot2.obj");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
