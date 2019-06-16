@@ -31,6 +31,7 @@
 float gRotation[3] = { 0.f,1.f,0.f };
 int gAutoRotate = 1;
 float rotationSpeed = 0.1;
+float zoom;
 
 /* the global Assimp scene object */
 const struct aiScene* scene = NULL;
@@ -41,6 +42,8 @@ struct aiVector3D scene_min, scene_max, scene_center;
 static float angle = 45.f;
 float lightMultiplier;
 float lightDirection[3];
+float matAmbient[4];
+float matDiffuse[4];
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
@@ -303,6 +306,9 @@ void display(void)
 	v[0] = -lightDirection[0]; v[1] = -lightDirection[1]; v[2] = -lightDirection[2]; v[3] = 0.0f;
 	glLightfv(GL_LIGHT0, GL_POSITION, v);
 
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, matAmbient);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
 	/* center the model */
 	glTranslatef(-scene_center.x, -scene_center.y, -scene_center.z);
 
@@ -318,6 +324,7 @@ void display(void)
 		glEndList();
 	}
 
+	glScalef(zoom, zoom, zoom);
 	glCallList(scene_list);
 
 	TwDraw();
@@ -372,6 +379,9 @@ int main(int argc, char **argv)
 
 	atexit(Terminate);  // Called after glutMainLoop ends
 
+	zoom = 1;
+	matAmbient[0] = 5.0f; matAmbient[1] = matAmbient[2] = 0.2f; matAmbient[3] = 1;
+	matDiffuse[0] = 3.0f; matDiffuse[1] = 1; matDiffuse[2] = 0; matDiffuse[3] = 1;
 	lightMultiplier = 1;
 	lightDirection[0] = lightDirection[1] = lightDirection[2] = -0.57735f;
 	// Initialize AntTweakBar
@@ -388,6 +398,8 @@ int main(int argc, char **argv)
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 3);
 
 	// TweakBar Menu
+	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom,
+		" min=0.01 max=2.5 step=0.01");
 	TwAddVarRW(bar, "Mesh", MeshTwType, &m_currentMesh, NULL);
 	TwAddSeparator(bar, "", NULL);
 	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
@@ -396,11 +408,15 @@ int main(int argc, char **argv)
 	TwAddSeparator(bar, "", NULL);
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
 	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier,
-		" label='Light booster' min=0.1 max=4 step=0.02 keyIncr='+' keyDecr='-' help='Increase/decrease the light power.' ");
+		" label='Light booster' min=0.1 max=4 step=0.02 ");
 
 	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection,
-		" label='Light direction' open help='Change the light direction.' ");
+		" label='Light direction'");
+	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
 
+	// Add 'win->MatDiffuse' to 'bar': this is a variable of type TW_TYPE_COLOR3F (3 floats color, alpha is ignored)
+	// and is inserted into group 'Material'.
+	TwAddVarRW(bar, "Diffuse", TW_TYPE_COLOR3F, &matDiffuse, " group='Material' ");
 
 	// after GLUT initialization
 	// directly redirect GLUT events to AntTweakBar
