@@ -407,15 +407,9 @@ int main(int argc, char **argv)
 	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0.1 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
 	TwAddSeparator(bar, "", NULL);
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
-	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier,
-		" label='Light booster' min=0.1 max=4 step=0.02 ");
-
-	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection,
-		" label='Light direction'");
+	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier, " label='Light booster' min=0.1 max=4 step=0.02 ");
+	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection, " label='Light direction'");
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
-
-	// Add 'win->MatDiffuse' to 'bar': this is a variable of type TW_TYPE_COLOR3F (3 floats color, alpha is ignored)
-	// and is inserted into group 'Material'.
 	TwAddVarRW(bar, "Diffuse", TW_TYPE_COLOR3F, &matDiffuse, " group='Material' ");
 
 	// after GLUT initialization
