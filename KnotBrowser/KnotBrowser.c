@@ -42,8 +42,8 @@ struct aiVector3D scene_min, scene_max, scene_center;
 static float angle = 45.f;
 float lightMultiplier;
 float lightDirection[3];
-float matAmbient[4];
-float matDiffuse[4];
+float matAmbient[] = { 0.5f, 0.0f, 0.0f, 1.0f };
+float matDiffuse[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
@@ -207,7 +207,7 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 	for (; n < nd->mNumMeshes; ++n) {
 		const struct aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
 
-		apply_material(sc->mMaterials[mesh->mMaterialIndex]);
+		//apply_material(sc->mMaterials[mesh->mMaterialIndex]);
 
 		if (mesh->mNormals == NULL) {
 			glDisable(GL_LIGHTING);
@@ -288,7 +288,7 @@ void display(void)
 	gluLookAt(0.f, 0.f, 3.f, 0.f, 0.f, -5.f, 0.f, 1.f, 0.f);
 
 	/* rotate it around the y axis */
-	glRotatef(angle, gRotation[0],gRotation[1],gRotation[2]);
+	glRotatef(angle, gRotation[0], gRotation[1], gRotation[2]);
 
 	/* scale the whole asset to fit into our view frustum */
 	tmp = scene_max.x - scene_min.x;
@@ -299,9 +299,9 @@ void display(void)
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	v[0] = v[1] = v[2] = lightMultiplier*0.4f; v[3] = 1.0f;
+	v[0] = v[1] = v[2] = lightMultiplier * 0.4f; v[3] = 1.0f;
 	glLightfv(GL_LIGHT0, GL_AMBIENT, v);
-	v[0] = v[1] = v[2] = lightMultiplier*0.8f; v[3] = 1.0f;
+	v[0] = v[1] = v[2] = lightMultiplier * 0.8f; v[3] = 1.0f;
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, v);
 	v[0] = -lightDirection[0]; v[1] = -lightDirection[1]; v[2] = -lightDirection[2]; v[3] = 0.0f;
 	glLightfv(GL_LIGHT0, GL_POSITION, v);
@@ -368,7 +368,7 @@ int main(int argc, char **argv)
 	TwBar *bar; // Pointer to the tweak bar
 	// Create an internal enum to name the meshes
 	typedef enum { BUDDHA, BUNNY, DRAGON } MESH_TYPE;
-	
+
 	struct aiLogStream stream;
 
 	glutInitWindowSize(900, 600);
@@ -380,8 +380,8 @@ int main(int argc, char **argv)
 	atexit(Terminate);  // Called after glutMainLoop ends
 
 	zoom = 1;
-	matAmbient[0] = 5.0f; matAmbient[1] = matAmbient[2] = 0.2f; matAmbient[3] = 1;
-	matDiffuse[0] = 3.0f; matDiffuse[1] = 1; matDiffuse[2] = 0; matDiffuse[3] = 1;
+	matAmbient[0] = 0.0f; matAmbient[1] = matAmbient[2] = 0.2f; matAmbient[3] = 1;
+	matDiffuse[0] = 0.0f; matDiffuse[1] = 1; matDiffuse[2] = 0; matDiffuse[3] = 1;
 	lightMultiplier = 1;
 	lightDirection[0] = lightDirection[1] = lightDirection[2] = -0.57735f;
 	// Initialize AntTweakBar
@@ -398,20 +398,20 @@ int main(int argc, char **argv)
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 3);
 
 	// TweakBar Menu
-	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom,
-		" min=0.01 max=2.5 step=0.01");
+	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom, " min=0.01 max=2.5 step=0.01");
 	TwAddVarRW(bar, "Mesh", MeshTwType, &m_currentMesh, NULL);
 	TwAddSeparator(bar, "", NULL);
 	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
 	TwAddSeparator(bar, "", NULL);
+<<<<<<< HEAD
 	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed," min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
+=======
+	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed, " min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
+>>>>>>> 9d6ade4cf25771c6178087c83fa6afd4d9fe73da
 	TwAddSeparator(bar, "", NULL);
-	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
-	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier,
-		" label='Light booster' min=0.1 max=4 step=0.02 ");
-
-	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection,
-		" label='Light direction'");
+	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' ");
+	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier, " label='Light booster' min=0.1 max=4 step=0.02 ");
+	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection, " label='Light direction'");
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
 
 	// Add 'win->MatDiffuse' to 'bar': this is a variable of type TW_TYPE_COLOR3F (3 floats color, alpha is ignored)
