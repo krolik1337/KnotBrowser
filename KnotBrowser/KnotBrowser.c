@@ -409,7 +409,7 @@ int main(int argc, char **argv)
 
 	struct aiLogStream stream;
 
-	glutInitWindowSize(900, 600);
+	glutInitWindowSize(1280, 720);
 	glutInitWindowPosition(100, 100);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInit(&argc, argv);
@@ -434,34 +434,28 @@ int main(int argc, char **argv)
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 4);
 
 	// Array of drop down items
-	TwEnumVal Models[] = { {0, "Polygon"}, {1, "Points"} };
+	TwEnumVal Models[] = { {0, "Simple"}, {1, "Fancy"} };
 	// ATB identifier for the array
 	TwType ModelTwType = TwDefineEnum("ModelType", Models, 2);
 
 	// TweakBar Menu
-	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom, " min=0.01 max=2.5 step=0.01");
-
 	TwAddVarRW(bar, "Mesh", MeshTwType, &newMesh, NULL);
-	TwAddSeparator(bar, "", NULL);
-
 	TwAddVarRW(bar, "Model", ModelTwType, &newModel, NULL);
 	TwAddSeparator(bar, "", NULL);
 
+	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom, " min=0.01 max=2.5 step=0.01");
+	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier, " label='Light booster' min=0.1 max=4 step=0.02 ");
+	TwAddVarRW(bar, "Rotation Speed", TW_TYPE_FLOAT, &rotationSpeed, " min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
+	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' ");
+	TwAddSeparator(bar, "", NULL);
+
 	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
-	TwAddSeparator(bar, "", NULL);
-
-	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed, " min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
-	TwAddSeparator(bar, "", NULL);
-
-	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
-	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier," label='Light booster' min=0.1 max=4 step=0.02 ");
-	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection," label='Light direction'");
-	TwAddVarRW(bar, "BgColor", TW_TYPE_COLOR3F, &bgColor,"label='Background color'");
+	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection, " label='Light direction'");
+	TwAddVarRW(bar, "BgColor", TW_TYPE_COLOR3F, &bgColor, "label='Background color'");
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
-
-	// Add 'win->MatDiffuse' to 'bar': this is a variable of type TW_TYPE_COLOR3F (3 floats color, alpha is ignored)
-	// and is inserted into group 'Material'.
 	TwAddVarRW(bar, "Diffuse", TW_TYPE_COLOR3F, &matDiffuse, " group='Material' ");
+
+	
 
 	// after GLUT initialization
 	// directly redirect GLUT events to AntTweakBar
