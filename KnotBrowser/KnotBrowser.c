@@ -49,9 +49,13 @@ float lightMultiplier;
 float lightDirection[3];
 float matAmbient[] = { 0.5f, 0.0f, 0.0f, 1.0f };
 float matDiffuse[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+GLuint Mesh = 3;
+GLuint newMesh = 3;
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
+
+
 
 /* ---------------------------------------------------------------------------- */
 void reshape(int width, int height)
@@ -225,7 +229,7 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 			const struct aiFace* face = &mesh->mFaces[t];
 			GLenum face_mode;
 
-			switch (face->mNumIndices) {
+			switch (Mesh) {
 			case 1: face_mode = GL_POINTS; break;
 			case 2: face_mode = GL_LINES; break;
 			case 3: face_mode = GL_TRIANGLES; break;
@@ -257,6 +261,32 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 }
 
 /* ---------------------------------------------------------------------------- */
+int loadasset(const char* path)
+{
+	/* we are taking one of the postprocessing presets to avoid
+	   spelling out 20+ single postprocessing flags here. */
+	scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
+
+	if (scene) {
+		get_bounding_box(&scene_min, &scene_max);
+		scene_center.x = (scene_min.x + scene_max.x) / 2.0f;
+		scene_center.y = (scene_min.y + scene_max.y) / 2.0f;
+		scene_center.z = (scene_min.z + scene_max.z) / 2.0f;
+		return 0;
+	}
+	return 1;
+}
+
+void ModelReload(int newMesh)
+{
+	Mesh = newMesh;
+	aiReleaseImport(scene);
+	aiDetachAllLogStreams();
+	scene_list = 0;
+	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj");
+}
+
+/* ---------------------------------------------------------------------------- */
 void do_motion(void)
 {
 	static GLint prev_time = 0;
@@ -275,6 +305,9 @@ void do_motion(void)
 		frames = 0;
 		prev_fps_time = time;
 	}
+
+	if (Mesh != newMesh) ModelReload(newMesh);
+
 	glutPostRedisplay();
 }
 
@@ -326,6 +359,7 @@ void display(void)
 		   the scenegraph by multiplying subsequent local transforms
 		   together on GL's matrix stack. */
 		recursive_render(scene, scene->mRootNode);
+		printf("%d mesh", Mesh);
 		glEndList();
 	}
 
@@ -339,22 +373,6 @@ void display(void)
 	do_motion();
 }
 
-/* ---------------------------------------------------------------------------- */
-int loadasset(const char* path)
-{
-	/* we are taking one of the postprocessing presets to avoid
-	   spelling out 20+ single postprocessing flags here. */
-	scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
-
-	if (scene) {
-		get_bounding_box(&scene_min, &scene_max);
-		scene_center.x = (scene_min.x + scene_max.x) / 2.0f;
-		scene_center.y = (scene_min.y + scene_max.y) / 2.0f;
-		scene_center.z = (scene_min.z + scene_max.z) / 2.0f;
-		return 0;
-	}
-	return 1;
-}
 
 // Function called at exit
 void Terminate(void)
@@ -372,9 +390,8 @@ void TW_CALL AutoRotateCB(void *p)
 /* ---------------------------------------------------------------------------- */
 int main(int argc, char **argv)
 {
-	TwBar *bar; // Pointer to the tweak bar
 	// Create an internal enum to name the meshes
-	typedef enum { BUDDHA, BUNNY, DRAGON } MESH_TYPE;
+	// typedef enum { BUDDHA, BUNNY, DRAGON } MESH_TYPE;
 
 	struct aiLogStream stream;
 
@@ -393,20 +410,17 @@ int main(int argc, char **argv)
 	lightDirection[0] = lightDirection[1] = lightDirection[2] = -0.57735f;
 	// Initialize AntTweakBar
 	TwInit(TW_OPENGL, NULL);
-	bar = TwNewBar("Knot Browser");
-
-	// A variable for the current selection - will be updated by ATB
-	MESH_TYPE m_currentMesh = BUDDHA;
+	TwBar* bar = TwNewBar("Knot Browser");
 
 	// Array of drop down items
-	TwEnumVal Meshes[] = { {BUDDHA, "Buddha"}, {BUNNY, "Bunny"}, {DRAGON, "Dragon"} };
+	TwEnumVal Meshes[] = { {0, "Polygon"}, {1, "Points"}, {2, "Lines"}, {3, "Triangles"} };
 
 	// ATB identifier for the array
-	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 3);
+	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 4);
 
 	// TweakBar Menu
 	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom, " min=0.01 max=2.5 step=0.01");
-	TwAddVarRW(bar, "Mesh", MeshTwType, &m_currentMesh, NULL);
+	TwAddVarRW(bar, "Mesh", MeshTwType, &newMesh, NULL);
 	TwAddSeparator(bar, "", NULL);
 	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
 	TwAddSeparator(bar, "", NULL);
@@ -482,5 +496,7 @@ int main(int argc, char **argv)
 	   again. This will definitely release the last resources allocated
 	   by Assimp.*/
 	aiDetachAllLogStreams();
+
+
 	return 0;
 }
