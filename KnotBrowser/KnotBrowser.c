@@ -49,8 +49,13 @@ float lightMultiplier;
 float lightDirection[3];
 float matAmbient[] = { 0.5f, 0.0f, 0.0f, 1.0f };
 float matDiffuse[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+/* to load meshes and models */
 GLuint Mesh = 3;
 GLuint newMesh = 3;
+
+GLuint Model = 0;
+GLuint newModel = 0;
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
@@ -261,10 +266,19 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 }
 
 /* ---------------------------------------------------------------------------- */
-int loadasset(const char* path)
+int loadasset(Model)
 {
 	/* we are taking one of the postprocessing presets to avoid
 	   spelling out 20+ single postprocessing flags here. */
+	const char * path ="";
+
+	switch (Model)
+	{
+		case 0: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj"; break;
+		case 1: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot2.obj"; break;
+	}
+
+
 	scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
 
 	if (scene) {
@@ -277,13 +291,14 @@ int loadasset(const char* path)
 	return 1;
 }
 
-void ModelReload(int newMesh)
+void ModelReload(GLuint newMesh, GLuint newModel)
 {
 	Mesh = newMesh;
+	Model = newModel;
 	aiReleaseImport(scene);
 	aiDetachAllLogStreams();
 	scene_list = 0;
-	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj");
+	loadasset(Model);
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -306,7 +321,7 @@ void do_motion(void)
 		prev_fps_time = time;
 	}
 
-	if (Mesh != newMesh) ModelReload(newMesh);
+	if (Mesh != newMesh || Model != newModel) ModelReload(newMesh,newModel);
 
 	glutPostRedisplay();
 }
@@ -359,7 +374,6 @@ void display(void)
 		   the scenegraph by multiplying subsequent local transforms
 		   together on GL's matrix stack. */
 		recursive_render(scene, scene->mRootNode);
-		printf("%d mesh", Mesh);
 		glEndList();
 	}
 
@@ -408,25 +422,37 @@ int main(int argc, char **argv)
 	matDiffuse[0] = 0.0f; matDiffuse[1] = 1; matDiffuse[2] = 0; matDiffuse[3] = 1;
 	lightMultiplier = 1;
 	lightDirection[0] = lightDirection[1] = lightDirection[2] = -0.57735f;
+
 	// Initialize AntTweakBar
 	TwInit(TW_OPENGL, NULL);
 	TwBar* bar = TwNewBar("Knot Browser");
 
+
 	// Array of drop down items
 	TwEnumVal Meshes[] = { {0, "Polygon"}, {1, "Points"}, {2, "Lines"}, {3, "Triangles"} };
-
 	// ATB identifier for the array
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 4);
 
+	// Array of drop down items
+	TwEnumVal Models[] = { {0, "Polygon"}, {1, "Points"} };
+	// ATB identifier for the array
+	TwType ModelTwType = TwDefineEnum("ModelType", Models, 2);
+
 	// TweakBar Menu
 	TwAddVarRW(bar, "Zoom", TW_TYPE_FLOAT, &zoom, " min=0.01 max=2.5 step=0.01");
+
 	TwAddVarRW(bar, "Mesh", MeshTwType, &newMesh, NULL);
 	TwAddSeparator(bar, "", NULL);
+
+	TwAddVarRW(bar, "Model", ModelTwType, &newModel, NULL);
+	TwAddSeparator(bar, "", NULL);
+
 	TwAddVarRW(bar, "Rotation", TW_TYPE_DIR3F, &gRotation, " axisz=-z ");
 	TwAddSeparator(bar, "", NULL);
 
 	TwAddVarRW(bar, "Speed", TW_TYPE_FLOAT, &rotationSpeed, " min=0 max=5 step=0.05 keyIncr=+ keyDecr=- help='Rotation speed (turns/second)' ");
 	TwAddSeparator(bar, "", NULL);
+
 	TwAddButton(bar, "AutoRotate", AutoRotateCB, NULL, " label='Auto rotate' "); 
 	TwAddVarRW(bar, "Multiplier", TW_TYPE_FLOAT, &lightMultiplier," label='Light booster' min=0.1 max=4 step=0.02 ");
 	TwAddVarRW(bar, "LightDir", TW_TYPE_DIR3F, &lightDirection," label='Light direction'");
@@ -471,7 +497,7 @@ int main(int argc, char **argv)
 	  // 		return -1;
 	  // 	}
 	  // }
-	loadasset("D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj");
+	loadasset(Model);
 
 	glEnable(GL_DEPTH_TEST);
 
