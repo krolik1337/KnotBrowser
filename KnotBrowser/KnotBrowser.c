@@ -39,8 +39,8 @@ float matDiffuse[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 GLuint Mesh = 3;
 GLuint newMesh = 3;
 
-GLuint Model = 1;
-GLuint newModel = 1;
+GLuint Model = 2;
+GLuint newModel = 2;
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
@@ -176,11 +176,12 @@ int loadasset(Model) {
 	switch (Model)
 	{
 		case 0: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot2.obj"; break;
-		case 1: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj"; break;
-		case 2: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelszrotowy.obj"; break;
-		case 3: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelplaski.obj"; break;
-		case 4: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelrzutkowy.obj"; break;
-		case 5: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wyblinka.obj"; break;
+		case 1: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\rope.obj"; break;
+		case 2: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj"; break;
+		case 3: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelszrotowy.obj"; break;
+		case 4: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelplaski.obj"; break;
+		case 5: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelrzutkowy.obj"; break;
+		case 6: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wyblinka.obj"; break;	
 	}
 
 	scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
@@ -331,9 +332,9 @@ int main(int argc, char **argv) {
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 4);
 
 	// Array of drop down items
-	TwEnumVal Models[] = { {0, "Lina"}, {1, "Osemka"}, {2, "Szrotowy"}, {3, "Plaski"}, {4, "Rzutkowy"}, {5, "Wyblinka"} };
+	TwEnumVal Models[] = { {0, "Lina 1"}, {1, "Lina 2"}, {2, "Osemka"}, {3, "Szrotowy"}, {4, "Plaski"}, {5, "Rzutkowy"}, {6, "Wyblinka"} };
 	// ATB identifier for the array
-	TwType ModelTwType = TwDefineEnum("ModelType", Models, 6);
+	TwType ModelTwType = TwDefineEnum("ModelType", Models, 7);
 
 	// TweakBar Menu
 	TwAddVarRW(bar, "Mesh", MeshTwType, &newMesh, NULL);
