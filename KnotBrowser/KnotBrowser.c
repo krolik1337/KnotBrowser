@@ -1,25 +1,10 @@
-/* ----------------------------------------------------------------------------
-// Simple sample to prove that Assimp is easy to use with OpenGL.
-// It takes a file name as command line parameter, loads it using standard
-// settings and displays it.
-//
-// If you intend to _use_ this code sample in your app, do yourself a favour
-// and replace immediate mode calls with VBOs ...
-//
-// The vc8 solution links against assimp-release-dll_win32 - be sure to
-// have this configuration built.
-// ----------------------------------------------------------------------------
-*/
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef __APPLE__
-#include <glut.h>
-#else
+/* GLUT include file*/
 #include <GL/glut.h>
-#endif
 
 /* assimp include files. These three are usually needed. */
 #include <assimp/cimport.h>
@@ -32,7 +17,7 @@
 /*Rotation*/
 float gRotation[3] = { 0.f,1.f,0.f };
 int gAutoRotate = 1;
-float rotationSpeed = 0.1;
+float rotationSpeed = 0.1f;
 float zoom;
 
 /*Background Color*/
@@ -54,33 +39,25 @@ float matDiffuse[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 GLuint Mesh = 3;
 GLuint newMesh = 3;
 
-GLuint Model = 0;
-GLuint newModel = 0;
+GLuint Model = 1;
+GLuint newModel = 1;
 
 #define aisgl_min(x,y) ((x)<(y)?(x):(y))
 #define aisgl_max(x,y) ((y)>(x)?(y):(x))
-
-
 
 /* ---------------------------------------------------------------------------- */
 void reshape(int width, int height)
 {
 	const double aspectRatio = (float)width / height, fieldOfView = 45.0;
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(fieldOfView, aspectRatio,
-		1.0, 1000.0);  /* Znear and Zfar */
+	gluPerspective(fieldOfView, aspectRatio, 1.0, 1000.0);  /* Znear and Zfar */
 	glViewport(0, 0, width, height);
 	TwWindowSize(width, height);
 }
 
 /* ---------------------------------------------------------------------------- */
-void get_bounding_box_for_node(const struct aiNode* nd,
-	struct aiVector3D* min,
-	struct aiVector3D* max,
-	struct aiMatrix4x4* trafo
-) {
+void get_bounding_box_for_node(const struct aiNode* nd, struct aiVector3D* min, struct aiVector3D* max, struct aiMatrix4x4* trafo) {
 	struct aiMatrix4x4 prev;
 	unsigned int n = 0, t;
 
@@ -103,7 +80,6 @@ void get_bounding_box_for_node(const struct aiNode* nd,
 			max->z = aisgl_max(max->z, tmp.z);
 		}
 	}
-
 	for (n = 0; n < nd->mNumChildren; ++n) {
 		get_bounding_box_for_node(nd->mChildren[n], min, max, trafo);
 	}
@@ -111,8 +87,7 @@ void get_bounding_box_for_node(const struct aiNode* nd,
 }
 
 /* ---------------------------------------------------------------------------- */
-void get_bounding_box(struct aiVector3D* min, struct aiVector3D* max)
-{
+void get_bounding_box(struct aiVector3D* min, struct aiVector3D* max) {
 	struct aiMatrix4x4 trafo;
 	aiIdentityMatrix4(&trafo);
 
@@ -122,8 +97,7 @@ void get_bounding_box(struct aiVector3D* min, struct aiVector3D* max)
 }
 
 /* ---------------------------------------------------------------------------- */
-void color4_to_float4(const struct aiColor4D *c, float f[4])
-{
+void color4_to_float4(const struct aiColor4D *c, float f[4]) {
 	f[0] = c->r;
 	f[1] = c->g;
 	f[2] = c->b;
@@ -131,8 +105,7 @@ void color4_to_float4(const struct aiColor4D *c, float f[4])
 }
 
 /* ---------------------------------------------------------------------------- */
-void set_float4(float f[4], float a, float b, float c, float d)
-{
+void set_float4(float f[4], float a, float b, float c, float d) {
 	f[0] = a;
 	f[1] = b;
 	f[2] = c;
@@ -140,74 +113,7 @@ void set_float4(float f[4], float a, float b, float c, float d)
 }
 
 /* ---------------------------------------------------------------------------- */
-void apply_material(const struct aiMaterial *mtl)
-{
-	float c[4];
-
-	GLenum fill_mode;
-	int ret1, ret2;
-	struct aiColor4D diffuse;
-	struct aiColor4D specular;
-	struct aiColor4D ambient;
-	struct aiColor4D emission;
-	ai_real shininess, strength;
-	int two_sided;
-	int wireframe;
-	unsigned int max;
-
-	set_float4(c, 0.8f, 0.8f, 0.8f, 1.0f);
-	if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
-		color4_to_float4(&diffuse, c);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, c);
-
-	set_float4(c, 0.0f, 0.0f, 0.0f, 1.0f);
-	if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_SPECULAR, &specular))
-		color4_to_float4(&specular, c);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, c);
-
-	set_float4(c, 0.2f, 0.2f, 0.2f, 1.0f);
-	if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_AMBIENT, &ambient))
-		color4_to_float4(&ambient, c);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, c);
-
-	set_float4(c, 0.0f, 0.0f, 0.0f, 1.0f);
-	if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_EMISSIVE, &emission))
-		color4_to_float4(&emission, c);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, c);
-
-	max = 1;
-	ret1 = aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS, &shininess, &max);
-	if (ret1 == AI_SUCCESS) {
-		max = 1;
-		ret2 = aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS_STRENGTH, &strength, &max);
-		if (ret2 == AI_SUCCESS)
-			glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess * strength);
-		else
-			glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-	}
-	else {
-		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.0f);
-		set_float4(c, 0.0f, 0.0f, 0.0f, 0.0f);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, c);
-	}
-
-	max = 1;
-	if (AI_SUCCESS == aiGetMaterialIntegerArray(mtl, AI_MATKEY_ENABLE_WIREFRAME, &wireframe, &max))
-		fill_mode = wireframe ? GL_LINE : GL_FILL;
-	else
-		fill_mode = GL_FILL;
-	glPolygonMode(GL_FRONT_AND_BACK, fill_mode);
-
-	max = 1;
-	if ((AI_SUCCESS == aiGetMaterialIntegerArray(mtl, AI_MATKEY_TWOSIDED, &two_sided, &max)) && two_sided)
-		glDisable(GL_CULL_FACE);
-	else
-		glEnable(GL_CULL_FACE);
-}
-
-/* ---------------------------------------------------------------------------- */
-void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
-{
+void recursive_render(const struct aiScene *sc, const struct aiNode* nd) {
 	unsigned int i;
 	unsigned int n = 0, t;
 	struct aiMatrix4x4 m = nd->mTransformation;
@@ -220,8 +126,6 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 	/* draw all meshes assigned to this node */
 	for (; n < nd->mNumMeshes; ++n) {
 		const struct aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
-
-		//apply_material(sc->mMaterials[mesh->mMaterialIndex]);
 
 		if (mesh->mNormals == NULL) {
 			glDisable(GL_LIGHTING);
@@ -251,10 +155,8 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 					glNormal3fv(&mesh->mNormals[index].x);
 				glVertex3fv(&mesh->mVertices[index].x);
 			}
-
 			glEnd();
 		}
-
 	}
 
 	/* draw all children */
@@ -266,18 +168,20 @@ void recursive_render(const struct aiScene *sc, const struct aiNode* nd)
 }
 
 /* ---------------------------------------------------------------------------- */
-int loadasset(Model)
-{
+int loadasset(Model) {
 	/* we are taking one of the postprocessing presets to avoid
 	   spelling out 20+ single postprocessing flags here. */
 	const char * path ="";
 
 	switch (Model)
 	{
-		case 0: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj"; break;
-		case 1: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot2.obj"; break;
+		case 0: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot2.obj"; break;
+		case 1: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\knot1.obj"; break;
+		case 2: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelszrotowy.obj"; break;
+		case 3: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelplaski.obj"; break;
+		case 4: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wezelrzutkowy.obj"; break;
+		case 5: path = "D:\\Git\\KnotBrowser\\KnotBrowser\\Debug\\Knots\\wyblinka.obj"; break;
 	}
-
 
 	scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
 
@@ -291,8 +195,8 @@ int loadasset(Model)
 	return 1;
 }
 
-void ModelReload(GLuint newMesh, GLuint newModel)
-{
+/* Reload model after model or mesh change*/
+void ModelReload(GLuint newMesh, GLuint newModel) {
 	Mesh = newMesh;
 	Model = newModel;
 	aiReleaseImport(scene);
@@ -302,8 +206,7 @@ void ModelReload(GLuint newMesh, GLuint newModel)
 }
 
 /* ---------------------------------------------------------------------------- */
-void do_motion(void)
-{
+void do_motion(void) {
 	static GLint prev_time = 0;
 	static GLint prev_fps_time = 0;
 	static int frames = 0;
@@ -327,8 +230,7 @@ void do_motion(void)
 }
 
 /* ---------------------------------------------------------------------------- */
-void display(void)
-{
+void display(void) {
 	float tmp;
 	float v[4];
 
@@ -389,24 +291,19 @@ void display(void)
 
 
 // Function called at exit
-void Terminate(void)
-{
+void Terminate(void) {
 	TwTerminate();
 }
 
-void TW_CALL AutoRotateCB(void *p)
-{
+/* Sets autoratate flag */
+void TW_CALL AutoRotateCB(void *p) {
 	if (gAutoRotate) rotationSpeed = 0.f;
 	else rotationSpeed = 0.1f;
 	gAutoRotate = !gAutoRotate;
 }
 
 /* ---------------------------------------------------------------------------- */
-int main(int argc, char **argv)
-{
-	// Create an internal enum to name the meshes
-	// typedef enum { BUDDHA, BUNNY, DRAGON } MESH_TYPE;
-
+int main(int argc, char **argv) {
 	struct aiLogStream stream;
 
 	glutInitWindowSize(1280, 720);
@@ -415,7 +312,8 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutCreateWindow("Knot Browser - Check your knot!");
 
-	atexit(Terminate);  // Called after glutMainLoop ends
+	/* Turn off Ant Tweak Bar after glutMainLoop ends */
+	atexit(Terminate);
 
 	zoom = 1;
 	matAmbient[0] = 0.0f; matAmbient[1] = matAmbient[2] = 0.2f; matAmbient[3] = 1;
@@ -427,16 +325,15 @@ int main(int argc, char **argv)
 	TwInit(TW_OPENGL, NULL);
 	TwBar* bar = TwNewBar("Knot Browser");
 
-
 	// Array of drop down items
 	TwEnumVal Meshes[] = { {0, "Polygon"}, {1, "Points"}, {2, "Lines"}, {3, "Triangles"} };
 	// ATB identifier for the array
 	TwType MeshTwType = TwDefineEnum("MeshType", Meshes, 4);
 
 	// Array of drop down items
-	TwEnumVal Models[] = { {0, "Simple"}, {1, "Fancy"} };
+	TwEnumVal Models[] = { {0, "Lina"}, {1, "Osemka"}, {2, "Szrotowy"}, {3, "Plaski"}, {4, "Rzutkowy"}, {5, "Wyblinka"} };
 	// ATB identifier for the array
-	TwType ModelTwType = TwDefineEnum("ModelType", Models, 2);
+	TwType ModelTwType = TwDefineEnum("ModelType", Models, 6);
 
 	// TweakBar Menu
 	TwAddVarRW(bar, "Mesh", MeshTwType, &newMesh, NULL);
@@ -454,8 +351,6 @@ int main(int argc, char **argv)
 	TwAddVarRW(bar, "BgColor", TW_TYPE_COLOR3F, &bgColor, "label='Background color'");
 	TwAddVarRW(bar, "Ambient", TW_TYPE_COLOR3F, &matAmbient, " group='Material' ");
 	TwAddVarRW(bar, "Diffuse", TW_TYPE_COLOR3F, &matDiffuse, " group='Material' ");
-
-	
 
 	// after GLUT initialization
 	// directly redirect GLUT events to AntTweakBar
@@ -482,15 +377,7 @@ int main(int argc, char **argv)
 	stream = aiGetPredefinedLogStream(aiDefaultLogStream_FILE, "assimp_log.txt");
 	aiAttachLogStream(&stream);
 
-	/* the model name can be specified on the command line. If none
-	  is specified, we try to locate one of the more expressive test
-	  models from the repository (/models-nonbsd may be missing in
-	  some distributions so we need a fallback from /models!). */
-	  // if (0 != loadasset(argc >= 2 ? argv[1] : "../../test/models-nonbsd/X/dwarf.x")) {
-	  // 	if (argc != 1 || (0 != loadasset("../../../../test/models-nonbsd/X/dwarf.x") && 0 != loadasset("../../test/models/X/Testwuson.X"))) {
-	  // 		return -1;
-	  // 	}
-	  // }
+	/* load default model */
 	loadasset(Model);
 
 	glEnable(GL_DEPTH_TEST);
@@ -516,7 +403,6 @@ int main(int argc, char **argv)
 	   again. This will definitely release the last resources allocated
 	   by Assimp.*/
 	aiDetachAllLogStreams();
-
 
 	return 0;
 }
